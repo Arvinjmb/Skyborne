@@ -128,7 +128,7 @@
   <div id="credits" class="screen hidden">
     <div class="creditsBody">
       <div class="cname">Arvin Jamebozorg</div>
-      <div style="margin-top:8px;"><span class="chip">🔒 Game Owner &amp; Creator</span> <span class="chip">SKYBORNE v1.9</span></div>
+      <div style="margin-top:8px;"><span class="chip">🔒 Game Owner &amp; Creator</span> <span class="chip">SKYBORNE v2.0</span></div>
       <div>
         <a class="chip" href="https://x.com/arvinjmb" target="_blank" rel="noopener">𝕏 @arvinjmb</a>
         <a class="chip" href="https://instagram.com/jamebozorg.arvin" target="_blank" rel="noopener">📸 @jamebozorg.arvin</a>
@@ -136,7 +136,7 @@
       <div class="copy">© 2026 Arvin Jamebozorg · All Rights Reserved</div>
       <div class="legal">This game was created, designed, and published by Arvin Jamebozorg. Unauthorized reproduction, copying, or distribution of any content in this game is strictly prohibited.</div>
       <div class="legal">All creative rights to this game belong exclusively to Arvin Jamebozorg.</div>
-      <a class="feedback" href="mailto:suggest.arvin@gmail.com?subject=Skyborne%20v1.9%20Feedback">✉️ Send a Feedback</a>
+      <a class="feedback" href="mailto:suggest.arvin@gmail.com?subject=Skyborne%20v2.0%20Feedback">✉️ Send a Feedback</a>
     </div>
     <button class="btn blue sm" id="creditsBack" style="margin-top:14px;">BACK</button>
   </div>
@@ -273,7 +273,15 @@ const coinMat=new THREE.MeshStandardMaterial({color:0xffd21e,metalness:0.4,rough
 function makeCoin(){const m=new THREE.Mesh(coinGeo,coinMat);m.rotation.x=Math.PI/2;m.castShadow=true;return m;}
 function makePow(type){const col=type==="shield"?0x39e7ff:0xff5fa2;const m=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.55,0.55),new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:0.55,roughness:0.4}));m.castShadow=true;return m;}
 const carCols=[0xe23b3b,0x2f7de0,0xf2b517,0x2fae6b,0x7e4fd0,0xff8a3d];
-function makeCar(){const grp=new THREE.Group();const col=carCols[(Math.random()*carCols.length)|0];grp.add(box(1.6,0.6,2.2,col,0,0.5,0));grp.add(box(1.2,0.55,1.2,col,0,1.0,-0.1));grp.add(box(1.05,0.4,1.0,0x9fd8ff,0,1.02,-0.1,false));for(const sx of[-0.7,0.7])for(const sz of[-0.7,0.7]){const w=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.18,12),mat(0x1b1e26));w.rotation.z=Math.PI/2;w.position.set(sx,0.26,sz);w.castShadow=true;grp.add(w);}grp.add(box(0.2,0.18,0.1,0xfff3b0,-0.45,0.5,1.12,false));grp.add(box(0.2,0.18,0.1,0xfff3b0,0.45,0.5,1.12,false));return grp;}
+function makeCar(){const grp=new THREE.Group();const col=carCols[(Math.random()*carCols.length)|0];
+ grp.add(box(1.85,1.35,2.7,col,0,0.85,0));
+ grp.add(box(1.7,0.95,2.45,col,0,1.75,0));
+ grp.add(box(1.74,0.42,2.2,0x9fd8ff,0,1.62,0,false));
+ grp.add(box(1.62,0.3,0.06,0x0c1020,0,2.0,1.24,false));
+ for(const sx of[-0.78,0.78])for(const sz of[-0.85,0.85]){const w=new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.36,0.22,14),mat(0x14161f));w.rotation.z=Math.PI/2;w.position.set(sx,0.36,sz);w.castShadow=true;grp.add(w);}
+ grp.add(box(0.28,0.22,0.1,0xfff3b0,-0.52,0.7,1.36,false));grp.add(box(0.28,0.22,0.1,0xfff3b0,0.52,0.7,1.36,false));
+ grp.add(box(0.24,0.18,0.1,0xff5a4a,-0.52,0.7,-1.36,false));grp.add(box(0.24,0.18,0.1,0xff5a4a,0.52,0.7,-1.36,false));
+ return grp;}
 function makeBarrier(){const grp=new THREE.Group();const b=box(1.7,0.85,0.5,0xffd21e,0,0.42,0);grp.add(b);grp.add(box(1.72,0.22,0.52,0x232733,0,0.7,0));grp.add(box(1.72,0.22,0.52,0x232733,0,0.2,0));return grp;}
 function makeGate(){const grp=new THREE.Group();grp.add(box(2.1,0.5,0.4,0xff3b46,0,1.7,0));grp.add(box(1.7,0.34,0.42,0xffffff,0,1.7,0.01,false));for(const s of[-0.95,0.95])grp.add(box(0.2,1.5,0.2,0xcfd3e0,s,0.75,0));return grp;}
 function makeObstacle(type){if(type==="low")return makeBarrier();if(type==="high")return makeGate();return makeCar();}
@@ -283,22 +291,25 @@ const S={MENU:"menu",PLAY:"play",PAUSE:"pause",DEAD:"dead",CREDITS:"credits"};
 let state=S.MENU,best=0,ents=[],g=null,shake=0,heroObj=null,runT=0;
 function laneX(i){return (i-1)*LANE;}
 function refreshDots(){const d=$("dots");d.innerHTML="";CHARS.forEach((_,i)=>{const x=document.createElement("div");x.className="dot"+(i===ci?" on":"");d.appendChild(x);});}
-function setHero(idx,forMenu){if(heroObj)scene.remove(heroObj);ci=(idx+CHARS.length)%CHARS.length;heroObj=buildHero(CHARS[ci]);heroObj.position.set(0,0,forMenu?-2.5:0);heroObj.rotation.y=forMenu?Math.PI:0;scene.add(heroObj);$("charName").textContent=CHARS[ci].name;$("charSub").textContent=CHARS[ci].sub;refreshDots();}
+function setHero(idx,forMenu){if(heroObj)scene.remove(heroObj);ci=(idx+CHARS.length)%CHARS.length;heroObj=buildHero(CHARS[ci]);heroObj.position.set(0,0,forMenu?-2.5:0);heroObj.rotation.y=forMenu?0:Math.PI;scene.add(heroObj);$("charName").textContent=CHARS[ci].name;$("charSub").textContent=CHARS[ci].sub;refreshDots();}
 
 function clearEnts(){for(const e of ents)scene.remove(e.mesh);ents=[];}
-function newGame(){clearEnts();setHero(ci,false);g={speed:20,dist:0,coins:0,score:0,lane:1,targetX:0,vy:0,airborne:false,roll:0,bank:0,combo:0,comboT:0,mult:1,shield:false,magnetT:0,spawnAccum:0,t:0,over:false};runT=0;}
+function newGame(){clearEnts();setHero(ci,false);g={speed:20,dist:0,coins:0,score:0,lane:1,targetX:0,vy:0,airborne:false,roll:0,queueRoll:false,bank:0,combo:0,comboT:0,mult:1,shield:false,magnetT:0,spawnAccum:0,t:0,over:false};runT=0;}
 
 function r3(){return Math.random()*3|0;}
 function addEnt(kind,lane,z){let mesh,type=null,k;if(kind==="coin"){mesh=makeCoin();mesh.position.set(laneX(lane),1.05,z);k="coin";}else if(kind==="shield"||kind==="magnet"){mesh=makePow(kind);mesh.position.set(laneX(lane),1.2,z);k="pow";type=kind;}else{mesh=makeObstacle(kind);mesh.position.set(laneX(lane),0,z);k="ob";type=kind;}scene.add(mesh);ents.push({mesh,k,type,lane,z,prevZ:z,collected:false,checked:false});}
+function obType(){const r=Math.random();return r<0.42?"low":(r<0.82?"high":"block");}
 function spawn(){const Z=-100,roll=Math.random();
- if(roll<0.30){const lane=r3();for(let i=0;i<6;i++)addEnt("coin",lane,Z-i*2.2);}
- else if(roll<0.40){addEnt(Math.random()<0.5?"shield":"magnet",r3(),Z);}
- else if(roll<0.74){const lane=r3(),types=["low","high","block"],t=types[Math.random()*3|0];addEnt(t,lane,Z);if(Math.random()<0.6){let cl;do{cl=r3();}while(cl===lane);for(let i=0;i<4;i++)addEnt("coin",cl,Z-i*2.2);}}
- else{const open=r3(),types=["low","high","block"];for(let l=0;l<3;l++){if(l===open)continue;addEnt(types[Math.random()*3|0],l,Z);}for(let i=0;i<6;i++)addEnt("coin",open,Z-i*2.2);}}
+ if(roll<0.34){const lane=r3();for(let i=0;i<6;i++)addEnt("coin",lane,Z-i*2.2);}
+ else if(roll<0.45){addEnt(Math.random()<0.5?"shield":"magnet",r3(),Z);}
+ else if(roll<0.85){const lane=r3();addEnt(obType(),lane,Z);if(Math.random()<0.6){let cl;do{cl=r3();}while(cl===lane);for(let i=0;i<4;i++)addEnt("coin",cl,Z-i*2.2);}}
+ else{const open=r3();for(let l=0;l<3;l++){if(l===open)continue;addEnt(obType(),l,Z);}for(let i=0;i<6;i++)addEnt("coin",open,Z-i*2.2);}}
 
 function moveLane(d){if(state!==S.PLAY)return;const n=Math.max(0,Math.min(2,g.lane+d));if(n!==g.lane){g.bank+=(n-g.lane)*0.4;g.lane=n;g.targetX=laneX(n);}}
 function jump(){if(state!==S.PLAY)return;if(!g.airborne&&g.roll<=0){g.airborne=true;g.vy=9.0;sJump();}}
-function rollAct(){if(state!==S.PLAY)return;if(!g.airborne&&g.roll<=0){g.roll=0.5;sRoll();}}
+function rollAct(){if(state!==S.PLAY)return;
+ if(g.airborne){if(g.vy>-18)g.vy=-18;g.queueRoll=true;sRoll();return;}
+ if(g.roll<=0){g.roll=0.5;sRoll();}}
 addEventListener("keydown",(e)=>{const k=e.key.toLowerCase();if(["arrowleft","arrowright","arrowup","arrowdown"," "].includes(k)||["a","d","w","s","p","escape"].includes(k))e.preventDefault();
  if(k==="p"||k==="escape"){if(state===S.PLAY)pauseGame();else if(state===S.PAUSE)resumeGame();return;}
  if(k==="arrowleft"||k==="a")moveLane(-1);else if(k==="arrowright"||k==="d")moveLane(1);else if(k==="arrowup"||k==="w"||k===" ")jump();else if(k==="arrowdown"||k==="s")rollAct();},{passive:false});
@@ -315,7 +326,7 @@ let last=performance.now();
 function loop(now){let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
  for(const cl of clouds){cl.position.x+=dt*0.5;if(cl.position.x>62)cl.position.x=-62;}
  if(state!==S.PAUSE)for(const e of ents){if(e.k==="coin")e.mesh.rotation.z+=dt*4;else if(e.k==="pow")e.mesh.rotation.y+=dt*2;}
- if(state===S.PLAY)update(dt); else if(state===S.MENU&&heroObj)heroObj.rotation.y=Math.PI+Math.sin(now*0.0008)*0.4;
+ if(state===S.PLAY)update(dt); else if(state===S.MENU&&heroObj)heroObj.rotation.y=Math.sin(now*0.0008)*0.4;
  if(shake>0){shake=Math.max(0,shake-dt*3);camera.position.set(CAM_BASE.x+(Math.random()-0.5)*shake*0.8,CAM_BASE.y+(Math.random()-0.5)*shake*0.8,CAM_BASE.z);}else camera.position.copy(CAM_BASE);
  renderer.render(scene,camera);requestAnimationFrame(loop);}
 
@@ -329,8 +340,8 @@ function update(dt){
  for(const l of streetlights){l.position.z+=move;if(l.position.z>16)l.position.z=-150-Math.random()*12;}
  // hero
  heroObj.position.x+=(g.targetX-heroObj.position.x)*Math.min(1,dt*16);
- g.bank+=(-g.bank)*Math.min(1,dt*8);heroObj.rotation.z=g.bank;heroObj.rotation.y=0;
- if(g.airborne){g.vy-=23*dt;heroObj.position.y+=g.vy*dt;if(heroObj.position.y<=0){heroObj.position.y=0;g.airborne=false;g.vy=0;}}
+ g.bank+=(-g.bank)*Math.min(1,dt*8);heroObj.rotation.z=g.bank;heroObj.rotation.y=Math.PI;
+ if(g.airborne){g.vy-=23*dt;heroObj.position.y+=g.vy*dt;if(heroObj.position.y<=0){heroObj.position.y=0;g.airborne=false;g.vy=0;if(g.queueRoll){g.queueRoll=false;g.roll=0.5;}}}
  if(g.roll>0)g.roll-=dt;
  const rolling=g.roll>0;heroObj.scale.set(0.82,rolling?0.5:0.82,0.82);
  runT+=dt*(8+g.speed*0.22);const swg=Math.sin(runT);const ud=heroObj.userData;
