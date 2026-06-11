@@ -1,2 +1,2 @@
 # Skyborne
-Invincible fan game. By Arvin Jamebozorg
+Indie game prototype.
