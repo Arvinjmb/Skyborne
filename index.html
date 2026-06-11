@@ -76,11 +76,10 @@
 
   <div id="hud" class="hidden">
     <div>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
         <div class="pill"><span class="k">SCORE</span><span class="v" id="hudScore">0</span></div>
         <div class="pill coins"><span class="k">COINS</span><span class="v" id="hudCoins">0</span></div>
       </div>
-      <div id="combo"></div>
     </div>
     <div class="topright">
       <div style="display:flex;gap:8px;">
@@ -128,7 +127,7 @@
   <div id="credits" class="screen hidden">
     <div class="creditsBody">
       <div class="cname">Arvin Jamebozorg</div>
-      <div style="margin-top:8px;"><span class="chip">🔒 Game Owner &amp; Creator</span> <span class="chip">SKYBORNE v2.2</span></div>
+      <div style="margin-top:8px;"><span class="chip">🔒 Game Owner &amp; Creator</span> <span class="chip">SKYBORNE v2.3</span></div>
       <div>
         <a class="chip" href="https://x.com/arvinjmb" target="_blank" rel="noopener">𝕏 @arvinjmb</a>
         <a class="chip" href="https://instagram.com/jamebozorg.arvin" target="_blank" rel="noopener">📸 @jamebozorg.arvin</a>
@@ -136,7 +135,7 @@
       <div class="copy">© 2026 Arvin Jamebozorg · All Rights Reserved</div>
       <div class="legal">This game was created, designed, and published by Arvin Jamebozorg. Unauthorized reproduction, copying, or distribution of any content in this game is strictly prohibited.</div>
       <div class="legal">All creative rights to this game belong exclusively to Arvin Jamebozorg.</div>
-      <a class="feedback" href="mailto:suggest.arvin@gmail.com?subject=Skyborne%20v2.2%20Feedback">✉️ Send a Feedback</a>
+      <a class="feedback" href="mailto:suggest.arvin@gmail.com?subject=Skyborne%20v2.3%20Feedback">✉️ Send a Feedback</a>
     </div>
     <button class="btn blue sm" id="creditsBack" style="margin-top:14px;">BACK</button>
   </div>
@@ -294,16 +293,16 @@ function refreshDots(){const d=$("dots");d.innerHTML="";CHARS.forEach((_,i)=>{co
 function setHero(idx,forMenu){if(heroObj)scene.remove(heroObj);ci=(idx+CHARS.length)%CHARS.length;heroObj=buildHero(CHARS[ci]);heroObj.position.set(0,0,forMenu?-2.5:0);heroObj.rotation.y=forMenu?0:Math.PI;scene.add(heroObj);$("charName").textContent=CHARS[ci].name;$("charSub").textContent=CHARS[ci].sub;refreshDots();}
 
 function clearEnts(){for(const e of ents)scene.remove(e.mesh);ents=[];}
-function newGame(){clearEnts();setHero(ci,false);g={speed:20,dist:0,coins:0,score:0,lane:1,targetX:0,vy:0,airborne:false,roll:0,queueRoll:false,prog:0,bank:0,combo:0,comboT:0,mult:1,shield:false,magnetT:0,spawnAccum:0,t:0,over:false};runT=0;}
+function newGame(){clearEnts();setHero(ci,false);g={speed:20,dist:0,coins:0,score:0,lane:1,targetX:0,vy:0,airborne:false,roll:0,queueRoll:false,prog:0,bank:0,shield:false,magnetT:0,spawnAccum:0,nextGap:18,t:0,over:false};runT=0;}
 
 function r3(){return Math.random()*3|0;}
 function addEnt(kind,lane,z){let mesh,type=null,k;if(kind==="coin"){mesh=makeCoin();mesh.position.set(laneX(lane),1.05,z);k="coin";}else if(kind==="shield"||kind==="magnet"){mesh=makePow(kind);mesh.position.set(laneX(lane),1.2,z);k="pow";type=kind;}else{mesh=makeObstacle(kind);mesh.position.set(laneX(lane),0,z);k="ob";type=kind;}scene.add(mesh);ents.push({mesh,k,type,lane,z,prevZ:z,collected:false,checked:false});}
 function obType(){const r=Math.random();return r<0.42?"low":(r<0.82?"high":"block");}
-function spawn(){const Z=-100,roll=Math.random();const dbl=0.10+0.14*(g.prog||0);
- if(roll<0.36){const lane=r3();for(let i=0;i<6;i++)addEnt("coin",lane,Z-i*2.2);}
- else if(roll<0.46){addEnt(Math.random()<0.5?"shield":"magnet",r3(),Z);}
- else if(roll<1-dbl){const lane=r3();addEnt(obType(),lane,Z);if(Math.random()<0.6){let cl;do{cl=r3();}while(cl===lane);for(let i=0;i<4;i++)addEnt("coin",cl,Z-i*2.2);}}
- else{const open=r3();for(let l=0;l<3;l++){if(l===open)continue;addEnt(obType(),l,Z);}for(let i=0;i<6;i++)addEnt("coin",open,Z-i*2.2);}}
+function spawn(){const Z=-100,roll=Math.random();const dbl=0.10+0.16*(g.prog||0);const react=0.9-0.3*(g.prog||0);
+ if(roll<0.36){const lane=r3();for(let i=0;i<6;i++)addEnt("coin",lane,Z-i*2.2);g.nextGap=Math.max(8,g.speed*0.5);}
+ else if(roll<0.46){addEnt(Math.random()<0.5?"shield":"magnet",r3(),Z);g.nextGap=Math.max(8,g.speed*0.5);}
+ else if(roll<1-dbl){const lane=r3();addEnt(obType(),lane,Z);if(Math.random()<0.6){let cl;do{cl=r3();}while(cl===lane);for(let i=0;i<4;i++)addEnt("coin",cl,Z-i*2.2);}g.nextGap=Math.max(11,g.speed*react);}
+ else{const open=r3();for(let l=0;l<3;l++){if(l===open)continue;addEnt(obType(),l,Z);}for(let i=0;i<6;i++)addEnt("coin",open,Z-i*2.2);g.nextGap=Math.max(14,g.speed*(react+0.22));}}
 
 function moveLane(d){if(state!==S.PLAY)return;const n=Math.max(0,Math.min(2,g.lane+d));if(n!==g.lane){g.bank+=(n-g.lane)*0.4;g.lane=n;g.targetX=laneX(n);}}
 function jump(){if(state!==S.PLAY)return;if(g.airborne)return;if(g.roll>0){g.roll=0;g.queueRoll=false;}g.airborne=true;g.vy=9.0;sJump();}
@@ -331,9 +330,8 @@ function loop(now){let dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
  renderer.render(scene,camera);requestAnimationFrame(loop);}
 
 function update(dt){
- g.t+=dt;g.prog=Math.min(1,g.dist/4000);g.speed=Math.min(38+22*g.prog,g.speed+dt*0.9);const move=g.speed*dt;
+ g.t+=dt;g.prog=Math.min(1,g.dist/3500);g.speed=Math.min(40+24*g.prog,g.speed+dt*1.0);const move=g.speed*dt;
  g.dist+=move;g.score=Math.floor(g.dist*1.2);$("hudScore").textContent=g.score;
- if(g.combo>0){g.comboT-=dt;if(g.comboT<=0){g.combo=0;g.mult=1;updateCombo();}}
  if(g.magnetT>0){g.magnetT-=dt;if(g.magnetT<0)g.magnetT=0;updatePups();}
  roadTexture.offset.y-=move*0.03;
  for(const b of buildings){b.position.z+=move;if(b.position.z>16){scene.remove(b);const i=buildings.indexOf(b);const nb=makeBuilding();nb.position.set(b.userData.side*(LANE*1.5+2.6+Math.random()*4),0,-95-Math.random()*25);nb.userData.side=b.userData.side;scene.add(nb);buildings[i]=nb;}}
@@ -353,11 +351,11 @@ function update(dt){
   if(g.magnetT>0&&e.k!=="ob"&&!e.collected&&e.z<2&&e.z>-24){e.mesh.position.x+=(heroObj.position.x-e.mesh.position.x)*Math.min(1,dt*6);}
   if(!e.checked&&e.prevZ<0&&e.z>=0){e.checked=true;resolve(e);}}
  for(let i=ents.length-1;i>=0;i--){if(ents[i].z>13||ents[i].collected){scene.remove(ents[i].mesh);ents.splice(i,1);}}
- g.spawnAccum+=move;const gap=Math.max(12,g.speed*(0.95-0.34*g.prog));if(g.spawnAccum>gap){g.spawnAccum=0;spawn();}
+ g.spawnAccum+=move;if(g.spawnAccum>g.nextGap){g.spawnAccum=0;spawn();}
  $("speedfx").style.opacity=Math.min(0.8,Math.max(0,(g.speed-32)/22));
 }
 function resolve(e){
- if(e.k==="coin"){const mg=g.magnetT>0;if((e.lane===g.lane||mg)&&!e.collected){e.collected=true;g.coins++;g.combo++;g.comboT=2.2;g.mult=Math.min(5,1+Math.floor(g.combo/4));g.score+=10*g.mult;$("hudCoins").textContent=g.coins;updateCombo();sCoin(g.mult);}return;}
+ if(e.k==="coin"){const mg=g.magnetT>0;if((e.lane===g.lane||mg)&&!e.collected){e.collected=true;g.coins++;g.score+=10;$("hudCoins").textContent=g.coins;sCoin(1);}return;}
  if(e.k==="pow"){const mg=g.magnetT>0;if((e.lane===g.lane||mg)&&!e.collected){e.collected=true;sPow();if(e.type==="shield")g.shield=true;else g.magnetT=6;updatePups();}return;}
  if(e.lane!==g.lane)return;let safe=false;
  if(e.type==="low"&&g.airborne&&heroObj.position.y>0.8)safe=true;
@@ -366,13 +364,12 @@ function resolve(e){
  if(g.shield){g.shield=false;shake=0.6;tone(300,0.2,"square",0.07);updatePups();return;}
  crash();
 }
-function updateCombo(){const el=$("combo");if(g.mult>1){el.textContent="x"+g.mult+" COMBO";el.style.transform="scale(1.25)";setTimeout(()=>el.style.transform="scale(1)",100);}else el.textContent="";}
 function updatePups(){const box=$("pups");box.innerHTML="";if(g.shield){const d=document.createElement("div");d.className="pup";d.style.color="#39e7ff";d.textContent="🛡";box.appendChild(d);}if(g.magnetT>0){const d=document.createElement("div");d.className="pup";d.style.color="#ff5fa2";d.textContent="🧲";const bar=document.createElement("div");bar.className="bar";bar.style.height=(g.magnetT/6*100)+"%";d.appendChild(bar);box.appendChild(d);}}
 function crash(){g.over=true;shake=1.2;sCrash();const pw=$("pow");pw.classList.remove("go");void pw.offsetWidth;pw.classList.add("go");state=S.DEAD;setTimeout(()=>{pw.classList.remove("go");showOver();},700);}
 
 const elMenu=$("menu"),elOver=$("over"),elCredits=$("credits"),elHud=$("hud"),elPause=$("pause");
 function show(el){[elMenu,elOver,elCredits,elPause].forEach(e=>e.classList.add("hidden"));if(el)el.classList.remove("hidden");}
-function start(){if(ac()&&ac().state==="suspended")ac().resume();newGame();state=S.PLAY;show(null);elHud.classList.remove("hidden");$("hudScore").textContent="0";$("hudCoins").textContent="0";$("combo").textContent="";$("pups").innerHTML="";$("speedfx").style.opacity=0;}
+function start(){if(ac()&&ac().state==="suspended")ac().resume();newGame();state=S.PLAY;show(null);elHud.classList.remove("hidden");$("hudScore").textContent="0";$("hudCoins").textContent="0";$("pups").innerHTML="";$("speedfx").style.opacity=0;}
 function pauseGame(){if(state!==S.PLAY)return;state=S.PAUSE;show(elPause);}
 function resumeGame(){if(state!==S.PAUSE)return;last=performance.now();state=S.PLAY;show(null);}
 function showOver(){const isB=g.score>best;if(isB)best=g.score;$("ovScore").textContent=g.score;$("ovCoins").textContent=g.coins;$("ovBest").textContent=best;$("bestTag").classList.toggle("hidden",!isB);elHud.classList.add("hidden");$("speedfx").style.opacity=0;show(elOver);}
